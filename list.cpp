@@ -1,132 +1,136 @@
 #include "list.h"
-
 using namespace std;
-
-bool is_integer(const string& s) {
-    if (s.empty()) return false;
-    size_t start = 0;
-    if (s[0] == '-' || s[0] == '+') {
-        if (s.length() == 1) return false;
-        start = 1;
+#define el '\n'
+bool is_int(const string& s)
+{
+    if(s.empty())return 0;
+    int num=0;
+    if(s[0]=='-'||s[0]=='+') 
+    {
+        if(s.size()==1)return 0;
+        num=1;
     }
-    for (size_t i = start; i < s.length(); ++i) {
-        if (!isdigit(s[i])) return false;
-    }
-    return true;
+    for(int i=num; i<s.size(); i++) 
+        if(!isdigit(s[i]))return 0;
+    return 1;
 }
-
-void process_user_input(DynamicList& myList, int current_index) {
-    string input;
-    cout << "\n[" << current_index + 1 << "] Enter value (char, int, 1.0f, true, 1.0, 10000000000LL, or string): ";
-    
-    if (!getline(cin, input)) {
+void check(DynamicList& CList, int idx)
+{
+    string s;
+    cout<<el<<"["<<idx+1<< "]Enter value: ";
+    if(!getline(cin, s))
+        return;
+    if(s.empty())
+        cout<<"Nothing was entered. MEHH! empty string."<<el, s="";
+    if(s=="true"||s=="True"||s=="TRUE"||s=="false"||s=="False"||s=="FALSE")
+    {
+        CList.push_back(s);
+        cout<<"You Entered: "<<s<<". The typeid is: "<< typeid(bool).name()<<el;
         return;
     }
-
-    if (input.empty()) {
-        cout << "  No input entered. Treating as empty string." << endl;
-        input = "";
-    }
-
-    if (input == "true" || input == "True" || input == "TRUE") {
-        myList.push_back(true);
-        cout << "  Entered: true. The typeid is: " << typeid(bool).name() << endl;
+    /*if(s=="true"||s=="True"||s=="TRUE")
+    {
+        CList.push_back(true);
+        cout<<"You Entered: true. The typeid is: "<< typeid(bool).name()<<el;
         return;
     }
-    if (input == "false" || input == "False" || input == "FALSE") {
-        myList.push_back(false);
-        cout << "  Entered: false. The typeid is: " << typeid(bool).name() << endl;
+    if(s=="false"||s=="False"||s=="FALSE") 
+    {
+        CList.push_back(false);
+        cout<<"You Entered: false. The typeid is: "<< typeid(bool).name()<<el;
+        return;
+    }*/
+    if(s.size()==1&&!isdigit(s[0]))
+    {
+        CList.push_back(s[0]);
+        cout<<"You Entered: '"<<s[0]<<"'. The typeid is: " << typeid(char).name()<<el;
         return;
     }
-
-    if (input.length() == 1 && !isdigit(input[0])) {
-        myList.push_back(input[0]);
-        cout << "  Entered: '" << input[0] << "'. The typeid is: " << typeid(char).name() << endl;
-        return;
+    if(!s.empty()&&(s.back()=='f'||s.back()=='F'))
+    {
+        string sub=s.substr(0, s.size()-1);
+        size_t pos;
+        float f=stof(sub, &pos);
+        if(pos==sub.size())
+        {
+            CList.push_back(f);
+            cout<<"You Entered: "<<f<<". The typeid is: "<<typeid(float).name()<<el;
+            return;
+        }
     }
-
-    if (!input.empty() && (input.back() == 'f' || input.back() == 'F')) {
-        string numeric_part = input.substr(0, input.length() - 1);
-        try {
-            size_t pos;
-            float float_val = stof(numeric_part, &pos);
-            if (pos == numeric_part.length()) {
-                myList.push_back(float_val);
-                cout << "  Entered: " << float_val << ". The typeid is: " << typeid(float).name() << endl;
-                return;
-            }
-        } catch (...) {}
+    if(!s.empty()&&(s.size()>=2&&(s.substr(s.size()-2)=="ll"||s.substr(s.size()-2)=="LL"))) 
+    {
+        string sub=s.substr(0, s.size()-2);
+        size_t pos;
+        long long l=stoll(sub, &pos);
+        if(pos==sub.size())
+        {
+            CList.push_back(l);
+            cout<<"You Entered: "<<l<<". The typeid is: "<<typeid(long long).name()<<el;
+            return;
+        }
     }
-
-    if (!input.empty() && (input.length() >= 2 && (input.substr(input.length() - 2) == "ll" || input.substr(input.length() - 2) == "LL"))) {
-        string numeric_part = input.substr(0, input.length() - 2);
-        try {
-            size_t pos;
-            long long ll_val = stoll(numeric_part, &pos);
-            if (pos == numeric_part.length()) {
-                myList.push_back(ll_val);
-                cout << "  Entered: " << ll_val << ". The typeid is: " << typeid(long long).name() << endl;
-                return;
-            }
-        } catch (...) {}
-    }
+    size_t pos;
     
     try {
-        size_t pos;
-        double double_val = stod(input, &pos);
-        if (pos == input.length()) {
-            if (input.find('.') != string::npos) {
-                myList.push_back(double_val);
-                cout << "  Entered: " << double_val << ". The typeid is: " << typeid(double).name() << endl;
+        double d=stod(s, &pos);
+        if(pos==s.size()) 
+        {
+            if(s.find('.')!=-1)
+            {
+                CList.push_back(d);
+                cout<<"You Entered: "<<d<<". The typeid is: "<<typeid(double).name()<<el;
                 return;
             }
-            else if (is_integer(input)) { 
-                try {
-                    int int_val = stoi(input);
-                    myList.push_back(int_val);
-                    cout << "  Entered: " << int_val << ". The typeid is: " << typeid(int).name() << endl;
+            else if(is_int(s))
+            { 
+                try
+                {
+                    int i=stoi(s);
+                    CList.push_back(i);
+                    cout<<"You Entered: "<<i<< ". The typeid is: "<<typeid(int).name()<<el;
                     return;
-                } catch (...) {
-                    myList.push_back(stoll(input));
-                    cout << "  Entered: " << stoll(input) << ". The typeid is: " << typeid(long long).name() << " (Default large integer)" << endl;
+                } 
+                catch (const std::out_of_range& e)
+                {
+                    long long l=stoll(s); 
+                    CList.push_back(l);
+                    cout << "You Entered: " << l << ". The typeid is: "<<typeid(long long).name() << " long long" << el;
                     return;
                 }
             }
         }
-    } catch (...) {} 
-
-    myList.push_back(input);
-    cout << "  Entered: \"" << input << "\". The typeid is: " << typeid(string).name() << endl;
-}
-
-void display_list_content(const DynamicList& myList) {
-    cout << "\n\n=======================================================" << endl;
-    cout << "     SHAHOODA'S  F I N A L   L I S T   C O N T E N T           " << endl;
-    cout << "=======================================================" << endl;
-    
-    for (size_t i = 0; i < myList.size(); ++i) {
-        const auto& item = myList[i];
-        cout << "[" << i << "] Value: ";
-        
-        if (item.type() == typeid(char)) {
-            cout << "'" << std::any_cast<char>(item) << "'";
-        } else if (item.type() == typeid(bool)) {
-            cout << (std::any_cast<bool>(item) ? "true" : "false");
-        } else if (item.type() == typeid(int)) {
-            cout << std::any_cast<int>(item);
-        } else if (item.type() == typeid(long long)) {
-            cout << std::any_cast<long long>(item) << "LL";
-        } else if (item.type() == typeid(float)) {
-            cout << std::any_cast<float>(item) << "f";
-        } else if (item.type() == typeid(double)) {
-            cout << std::any_cast<double>(item);
-        } else if (item.type() == typeid(string)) {
-            cout << "\"" << std::any_cast<string>(item) << "\"";
-        } else {
-             cout << "[Unsupported Type]";
-        }
-        
-        cout << " | C++ Type ID: " << item.type().name() << endl;
+    } catch (const std::invalid_argument& e) {
+    } catch (const std::out_of_range& e) {
     }
-    cout << "=======================================================" << endl;
+    CList.push_back(s);
+    cout<<"You Entered: \""<<s<<"\". The typeid is: "<<typeid(string).name()<<el;
+}
+void display(const DynamicList& CList) 
+{
+    cout<<el<<el<<"-------------------------------------------------------"<<el;
+    cout<<"     SHAHOODA'S  F I N A L   L I S T   C O N T E N T           "<<el;
+    cout<<"-------------------------------------------------------"<<el;
+    for(int i=0; i<CList.size(); i++) 
+    {
+        const auto& item=CList[i];
+        cout<<"["<<i<<"] Value: ";
+        if (item.type() == typeid(char))
+            cout << "'" << std::any_cast<char>(item)<<"'";
+        else if(item.type() == typeid(bool)) 
+            cout << (std::any_cast<bool>(item)?"true" : "false");
+        else if(item.type() == typeid(int)) 
+            cout << std::any_cast<int>(item);
+        else if(item.type() == typeid(long long)) 
+            cout << std::any_cast<long long>(item)<<"LL";
+        else if(item.type() == typeid(float)) 
+            cout << std::any_cast<float>(item)<<"f";
+        else if(item.type() == typeid(double)) 
+            cout << std::any_cast<double>(item);
+        else if(item.type() == typeid(string)) 
+            cout << "\"" << std::any_cast<string>(item)<<"\"";
+        else
+             cout<<"OUCH! Unsupported Type!! :(";
+        cout<<" & C++ Type ID is: "<< item.type().name()<<el;
+    }
 }
